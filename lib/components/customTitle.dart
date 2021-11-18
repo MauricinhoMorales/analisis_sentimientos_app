@@ -14,9 +14,9 @@ class CustomTitle extends StatelessWidget {
           title,
           textAlign: TextAlign.center,
           style: new TextStyle(
-              fontWeight: FontWeight.w500,
-              fontSize: 46.0,
-              fontFamily: 'OleoScript'),
+              fontWeight: FontWeight.w700,
+              fontSize: 40.0,
+              fontFamily: 'Poppins'),
         ));
   }
 }

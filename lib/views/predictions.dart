@@ -1,8 +1,8 @@
-import 'package:app_new/components/customCard.dart';
-import 'package:app_new/components/customSearchBar.dart';
+import 'package:app_new/components/barChart.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:app_new/components/customTitle.dart';
+import 'package:app_new/series/barChartSeries.dart';
 import 'package:app_new/tools/colors.dart';
-import 'package:app_new/views/predictions_details.dart';
 import 'package:flutter/material.dart';
 
 class ViewPredictions extends StatefulWidget {
@@ -11,107 +11,287 @@ class ViewPredictions extends StatefulWidget {
 }
 
 class _ViewPredictionsState extends State<ViewPredictions> {
-  // This holds a list of fiction users
-  // You can use data fetched from a database or cloud as well
-  final List<Map<String, dynamic>> _allValues = [
-    {
-      "id": 1,
-      "title": "Predicción de Sentimiento",
-      "subtitle": "Tomando en cuenta sentimientos positivos y negativos",
-      "tags": ['prediccion']
-    },
-    {
-      "id": 2,
-      "title": "Prediccion de Comportamiento",
-      "subtitle": "Referido a irse o quedarse en el país",
-      "tags": ['prediccion']
-    },
+  TextEditingController _textEditingController = TextEditingController();
+  List<bool> _selections = [true, false];
+  List<String> _graphsNames = [
+    'MÁQUINA DE SOPORTE',
+    'MAXIMUM ENTROPY',
+    'ÁRBOL DE DECISIÓN',
+    'NAIVE BAYES',
+  ];
+  int currentIndex = 0;
+  int maxIndex = 3;
+  String message = '';
+  bool isActive = false;
+  String description =
+      'Suministra un texto expresando tu opinión referente al fenómeno migratorio venezolano para evaluar el rendimiento de los modelos de clasificación';
+
+  final List<BarChartSeries> dataBS = [
+    BarChartSeries(
+        category: 'Tristeza',
+        value: 70,
+        color: charts.ColorUtil.fromDartColor(primaryColor)),
+    BarChartSeries(
+        category: 'Ira',
+        value: 20,
+        color: charts.ColorUtil.fromDartColor(primaryColor)),
+    BarChartSeries(
+        category: 'Felicidad',
+        value: 10,
+        color: charts.ColorUtil.fromDartColor(primaryColor)),
+    BarChartSeries(
+        category: 'Miedo',
+        value: 0,
+        color: charts.ColorUtil.fromDartColor(primaryColor)),
   ];
 
-  // This list holds the data for the list view
-  List<Map<String, dynamic>> _filteredValues = [];
+  final List<BarChartSeries> dataBO = [
+    BarChartSeries(
+        category: 'A Favor',
+        value: 65,
+        color: charts.ColorUtil.fromDartColor(primaryColor)),
+    BarChartSeries(
+        category: 'En Contra',
+        value: 15,
+        color: charts.ColorUtil.fromDartColor(primaryColor)),
+    BarChartSeries(
+        category: 'Neutral',
+        value: 20,
+        color: charts.ColorUtil.fromDartColor(primaryColor))
+  ];
 
-  bool detailScreen = false;
-  String id = '';
+  final List<BarChartSeries> dataDS = [
+    BarChartSeries(
+        category: 'Tristeza',
+        value: 0,
+        color: charts.ColorUtil.fromDartColor(primaryColor)),
+    BarChartSeries(
+        category: 'Ira',
+        value: 0,
+        color: charts.ColorUtil.fromDartColor(primaryColor)),
+    BarChartSeries(
+        category: 'Felicidad',
+        value: 0,
+        color: charts.ColorUtil.fromDartColor(primaryColor)),
+    BarChartSeries(
+        category: 'Miedo',
+        value: 0,
+        color: charts.ColorUtil.fromDartColor(primaryColor)),
+  ];
+
+  final List<BarChartSeries> dataDO = [
+    BarChartSeries(
+        category: 'A Favor',
+        value: 0,
+        color: charts.ColorUtil.fromDartColor(primaryColor)),
+    BarChartSeries(
+        category: 'En Contra',
+        value: 0,
+        color: charts.ColorUtil.fromDartColor(primaryColor)),
+    BarChartSeries(
+        category: 'Neutral',
+        value: 0,
+        color: charts.ColorUtil.fromDartColor(primaryColor))
+  ];
 
   @override
   initState() {
-    // at the beginning, all users are shown
-    _filteredValues = _allValues;
-    detailScreen = false;
-    id = '';
     super.initState();
-  }
-
-  // This function is called whenever the text field changes
-  void _runFilter(String enteredKeyword) {
-    List<Map<String, dynamic>> results = [];
-    if (enteredKeyword.isEmpty) {
-      // if the search field is empty or only contains white-space, we'll display all users
-      results = _allValues;
-    } else {
-      results = _allValues
-          .where((value) =>
-              (value["title"]
-                  .toLowerCase()
-                  .contains(enteredKeyword.toLowerCase())) ||
-              (value["subtitle"]
-                  .toLowerCase()
-                  .contains(enteredKeyword.toLowerCase())) ||
-              (value["tags"].contains(enteredKeyword.toLowerCase())))
-          .toList();
-      // we use the toLowerCase() method to make it case-insensitive
-    }
-
-    // Refresh the UI
-    setState(() {
-      _filteredValues = results;
-    });
-  }
-
-  void _changeScreen() {
-    setState(() {
-      this.id = '';
-      this.detailScreen = !this.detailScreen;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return !this.detailScreen
-        ? Container(
-            color: whiteColor,
-            child: Padding(
-              padding: const EdgeInsets.all(30),
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: 20,
+    List<Widget> _graphsSentiments = [
+      BarChart(data: dataBS),
+      BarChart(data: dataBS),
+      BarChart(data: dataBS),
+      BarChart(data: dataBS),
+    ];
+    List<Widget> _graphsOpinions = [
+      BarChart(data: dataBO),
+      BarChart(data: dataBO),
+      BarChart(data: dataBO),
+      BarChart(data: dataBO),
+    ];
+    List<Widget> _graphsDisableSentiments = [
+      BarChart(data: dataDS),
+      BarChart(data: dataDS),
+      BarChart(data: dataDS),
+      BarChart(data: dataDS),
+    ];
+    List<Widget> _graphsDisableOpinions = [
+      BarChart(data: dataDO),
+      BarChart(data: dataDO),
+      BarChart(data: dataDO),
+      BarChart(data: dataDO),
+    ];
+
+    return Container(
+        color: whiteColor,
+        child: Padding(
+            padding: const EdgeInsets.all(30),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 10,
+                ),
+                CustomTitle(title: 'PREDICCIONES'),
+                Text(description,
+                    textAlign: TextAlign.center,
+                    style: new TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 14.0,
+                        fontFamily: 'Poppins')),
+                SizedBox(
+                  height: 15,
+                ),
+                Padding(
+                    padding: EdgeInsets.all(10),
+                    child: TextField(
+                      maxLines: 3,
+                      minLines: 3,
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15))),
+                      controller: _textEditingController,
+                    )),
+                SizedBox(
+                  height: 5,
+                ),
+                TextButton(
+                  child: Padding(
+                      padding: EdgeInsets.all(5),
+                      child: Text('Evaluar Mensaje',
+                          textAlign: TextAlign.center,
+                          style: new TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 13.0,
+                              color: Colors.white,
+                              fontFamily: 'Poppins'))),
+                  style: TextButton.styleFrom(
+                      backgroundColor: primaryColor,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10))),
+                  onPressed: () {
+                    FocusScope.of(context).unfocus();
+                    setState(() {
+                      message = _textEditingController.text;
+                      if (message != '')
+                        isActive = true;
+                      else
+                        isActive = false;
+                    });
+                  },
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                Text('RESULTADOS',
+                    textAlign: TextAlign.center,
+                    style: new TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 22.0,
+                        fontFamily: 'Poppins')),
+                SizedBox(
+                  height: 10,
+                ),
+                ToggleButtons(
+                    children: [
+                      Padding(
+                          padding: EdgeInsets.only(left: 20, right: 20),
+                          child: Text('Sentimientos',
+                              textAlign: TextAlign.center,
+                              style: new TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14.0,
+                                  fontFamily: 'Poppins'))),
+                      Padding(
+                        padding: EdgeInsets.only(left: 30, right: 30),
+                        child: Text('Opiniones',
+                            textAlign: TextAlign.center,
+                            style: new TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14.0,
+                                fontFamily: 'Poppins')),
+                      ),
+                    ],
+                    isSelected: _selections,
+                    color: Colors.grey,
+                    selectedColor: whiteColor,
+                    fillColor: primaryColor,
+                    borderRadius: BorderRadius.circular(10),
+                    onPressed: (int index) {
+                      setState(() {
+                        _selections = List.generate(2, (_) => false);
+                        _selections[index] = true;
+                      });
+                    }),
+                SizedBox(
+                  height: 15,
+                ),
+                Row(children: [
+                  SizedBox(width: 50),
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        if (currentIndex == 0)
+                          currentIndex = maxIndex;
+                        else
+                          currentIndex -= 1;
+                      });
+                    },
+                    icon: Icon(Icons.arrow_back_ios),
+                    color: primaryColor,
                   ),
-                  CustomTitle(title: 'Predicciones'),
-                  CustomSearchBar(runFilter: _runFilter),
                   Expanded(
-                    child: _filteredValues.length > 0
-                        ? ListView.builder(
-                            itemCount: _filteredValues.length,
-                            itemBuilder: (context, index) => Padding(
-                                padding: EdgeInsets.only(bottom: 15),
-                                child: CustomCard(
-                                    title: _filteredValues[index]['title'],
-                                    subtitle: _filteredValues[index]
-                                        ['subtitle'],
-                                    tags: _filteredValues[index]['tags'],
-                                    navigation: _changeScreen)))
-                        : Padding(
-                            padding: EdgeInsets.only(top: 40),
-                            child: Text(
-                              'No hay resultados',
-                              style: TextStyle(fontSize: 24),
-                            )),
+                      child: Text(_graphsNames[currentIndex],
+                          textAlign: TextAlign.center,
+                          style: new TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 16.0,
+                              fontFamily: 'Poppins'))),
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        if (currentIndex == maxIndex)
+                          currentIndex = 0;
+                        else
+                          currentIndex += 1;
+                      });
+                    },
+                    icon: Icon(Icons.arrow_forward_ios),
+                    color: primaryColor,
                   ),
-                ],
-              ),
-            ))
-        : ViewDetailPrediction();
+                  SizedBox(width: 50),
+                ]),
+                isActive
+                    ? _selections[0]
+                        ? Expanded(child: _graphsSentiments[currentIndex])
+                        : Expanded(child: _graphsOpinions[currentIndex])
+                    : _selections[0]
+                        ? Expanded(
+                            child: _graphsDisableSentiments[currentIndex])
+                        : Expanded(child: _graphsDisableOpinions[currentIndex]),
+                TextButton(
+                    child: Padding(
+                        padding: EdgeInsets.all(4),
+                        child: Text('Agregar Mensaje',
+                            textAlign: TextAlign.center,
+                            style: new TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 13.0,
+                                color: Colors.white,
+                                fontFamily: 'Poppins'))),
+                    style: TextButton.styleFrom(
+                        backgroundColor: isActive ? primaryColor : Colors.grey,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10))),
+                    onPressed: isActive
+                        ? () {
+                            FocusScope.of(context).unfocus();
+                          }
+                        : null),
+              ],
+            )));
   }
 }

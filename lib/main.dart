@@ -3,7 +3,6 @@ import 'package:app_new/tools/constants.dart';
 import 'package:app_new/views/predictions.dart';
 import 'package:app_new/views/settings.dart';
 import 'package:app_new/views/statistics.dart';
-import 'package:app_new/views/users.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -37,30 +36,22 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 4,
+      length: 3,
       child: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle(
             statusBarColor: primaryColor,
             statusBarIconBrightness: Brightness.light),
         child: Scaffold(
           body: TabBarView(
-            children: [
-              ViewUsers(),
-              ViewStatistics(),
-              ViewPredictions(),
-              ViewSettings()
-            ],
+            children: [ViewStatistics(), ViewPredictions(), ViewSettings()],
           ),
           bottomNavigationBar: TabBar(
             tabs: [
               Tab(
-                icon: Icon(Icons.perm_identity),
-              ),
-              Tab(
                 icon: Icon(Icons.bar_chart_sharp),
               ),
               Tab(
-                icon: Icon(Icons.online_prediction),
+                icon: Icon(Icons.chat_sharp),
               ),
               Tab(
                 icon: Icon(Icons.settings),
